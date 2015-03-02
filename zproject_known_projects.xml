@@ -44,6 +44,7 @@
     
     <use project = "sodium"
         repository = "https://github.com/jedisct1/libsodium"
+        includedir = "src/libsodium/include"
         test = "sodium_init" />
 
     <use project = "jemalloc"

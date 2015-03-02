@@ -27,6 +27,7 @@ myproject_SCRIPTS = \
     zproject_cygwin.gsl \
     zproject_qt_android.gsl \
     zproject_tools.gsl \
+    zproject_vs.gsl \
     zproject_vs2008.gsl \
     zproject_vs2010.gsl \
     zproject_vs2012.gsl \

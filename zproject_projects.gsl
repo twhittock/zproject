@@ -26,6 +26,7 @@ function resolve_project_dependency (use)
     my.use.prefix ?= my.use.project
     my.use.linkname ?= my.use.prefix
     my.use.includename ?= my.use.prefix
+    my.use.includedir ?= 'include'
     my.use.libname ?= "lib" + my.use.linkname
     my.use.cmake_name ?= "$(my.use.project:Pascal)"
     
@@ -36,7 +37,12 @@ function resolve_project_dependency (use)
             "Please add $(my.use.project) to zproject_known_projects.xml " +\
             "or add the missing properties to the <use> model locally."
     endif
-    
+
+    if !defined (my.use.reponame)
+        my.use.reponame = my.use.prefix
+        regexp.match("([^/]*)$", my.use.repository, my.use.reponame)
+    endif
+
     # Calculate all non-model values from model values
     my.use.min_version = "$(min_major?'0').$(min_minor?'0').$(min_patch?'0')"
     

@@ -1,0 +1,1086 @@
+.#  Generate shared VS configuration files
+.#
+.#  This is a code generator built using the iMatix GSL code generation
+.#  language. See https://github.com/imatix/gsl for details. This script
+.#  is licensed under MIT/X11.
+.#
+.if !file.exists ('builds/msvc/build')
+.   directory.create('builds/msvc/build')
+.endif
+.if !file.exists ('builds/msvc/properties')
+.   directory.create('builds/msvc/properties')
+.endif
+.echo "Generating msvc support files..."
+.#
+.output "builds/msvc/.gitignore"
+*.opensdf
+*.suo
+*.sdf
+*.user
+*.aps
+*.log
+/ipch/
+.#
+.output "builds/msvc/build/buildall.bat"
+@ECHO OFF
+
+CALL buildbase.bat ..\\vs2013\\$(project.name:c).sln 12
+ECHO.
+CALL buildbase.bat ..\\vs2012\\$(project.name:c).sln 11
+ECHO.
+CALL buildbase.bat ..\\vs2010\\$(project.name:c).sln 10
+ECHO.
+
+PAUSE\
+.#
+.output "builds/msvc/build/buildbase.bat"
+@ECHO OFF
+REM Usage: [buildbase.bat ..\\vs2013\\mysolution.sln 12]
+
+SET solution=%1
+SET version=%2
+SET log=build_%version%.log
+SET tools=Microsoft Visual Studio %version%.0\\VC\\vcvarsall.bat
+SET environment="%programfiles(x86)%\\%tools%"
+IF NOT EXIST %environment% SET environment="%programfiles%\\%tools%"
+IF NOT EXIST %environment% GOTO no_tools
+
+ECHO Building: %solution%
+
+CALL %environment% x86 > nul
+ECHO Platform=x86
+
+ECHO Configuration=DynDebug
+msbuild /m /v:n /p:Configuration=DynDebug /p:Platform=Win32 %solution% > %log%
+IF errorlevel 1 GOTO error
+ECHO Configuration=DynRelease
+msbuild /m /v:n /p:Configuration=DynRelease /p:Platform=Win32 %solution% >> %log%
+IF errorlevel 1 GOTO error
+ECHO Configuration=LtcgDebug
+msbuild /m /v:n /p:Configuration=LtcgDebug /p:Platform=Win32 %solution% >> %log%
+IF errorlevel 1 GOTO error
+ECHO Configuration=LtcgRelease
+msbuild /m /v:n /p:Configuration=LtcgRelease /p:Platform=Win32 %solution% >> %log%
+IF errorlevel 1 GOTO error
+ECHO Configuration=StaticDebug
+msbuild /m /v:n /p:Configuration=StaticDebug /p:Platform=Win32 %solution% >> %log%
+IF errorlevel 1 GOTO error
+ECHO Configuration=StaticRelease
+msbuild /m /v:n /p:Configuration=StaticRelease /p:Platform=Win32 %solution% >> %log%
+IF errorlevel 1 GOTO error
+
+CALL %environment% x86_amd64 > nul
+ECHO Platform=x64
+
+ECHO Configuration=DynDebug
+msbuild /m /v:n /p:Configuration=DynDebug /p:Platform=x64 %solution% > %log%
+IF errorlevel 1 GOTO error
+ECHO Configuration=DynRelease
+msbuild /m /v:n /p:Configuration=DynRelease /p:Platform=x64 %solution% >> %log%
+IF errorlevel 1 GOTO error
+ECHO Configuration=LtcgDebug
+msbuild /m /v:n /p:Configuration=LtcgDebug /p:Platform=x64 %solution% >> %log%
+IF errorlevel 1 GOTO error
+ECHO Configuration=LtcgRelease
+msbuild /m /v:n /p:Configuration=LtcgRelease /p:Platform=x64 %solution% >> %log%
+IF errorlevel 1 GOTO error
+ECHO Configuration=StaticDebug
+msbuild /m /v:n /p:Configuration=StaticDebug /p:Platform=x64 %solution% >> %log%
+IF errorlevel 1 GOTO error
+ECHO Configuration=StaticRelease
+msbuild /m /v:n /p:Configuration=StaticRelease /p:Platform=x64 %solution% >> %log%
+IF errorlevel 1 GOTO error
+
+ECHO Complete: %solution%
+GOTO end
+
+:error
+ECHO *** ERROR, build terminated early, see: %log%
+GOTO end
+
+:no_tools
+ECHO *** ERROR, build tools not found: %tools%
+
+:end
+
+.#
+.output "builds/msvc/platform.h"
+/*
+    Copyright (c) 2007-2011 iMatix Corporation
+    Copyright (c) 2007-2011 Other contributors as noted in the AUTHORS file
+
+    This file is part of 0MQ.
+
+    0MQ is free software; you can redistribute it and/or modify it under
+    the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
+
+    0MQ is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#ifndef __PLATFORM_H_INCLUDED__
+#define __PLATFORM_H_INCLUDED__
+
+//  This is the platform definition for the MSVC platform.
+//  As a first step of the build process it is copied to
+//  zmq directory to take place of platform.hpp generated from
+//  platform.hpp.in on platforms supported by GNU autotools.
+//  Place any MSVC-specific definitions here.
+
+#define $(PROJECT.NAME:c)_HAVE_WINDOWS
+
+#define HAVE_LIBUUID 1
+
+#endif
+.#
+.output "builds/msvc/resource.h"
+//{{NO_DEPENDENCIES}}
+// Microsoft Visual C++ generated include file.
+// Used by $(project.name:c).rc
+
+// Next default values for new objects
+// 
+#ifdef APSTUDIO_INVOKED
+#ifndef APSTUDIO_READONLY_SYMBOLS
+#define _APS_NEXT_RESOURCE_VALUE        101
+#define _APS_NEXT_COMMAND_VALUE         40001
+#define _APS_NEXT_CONTROL_VALUE         1001
+#define _APS_NEXT_SYMED_VALUE           101
+#endif
+#endif
+.#
+.output "builds/msvc/$(project.name:c).rc"
+﻿// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "winres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (United States) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""winres.h""\\r\\n"
+    "\\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\\r\\n"
+    "\\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION $(project->version.major),$(project->version.minor),$(project->version.patch),0
+ PRODUCTVERSION $(project->version.major),$(project->version.minor),$(project->version.patch),0
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x40004L
+ FILETYPE 0x7L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "CompanyName", "$(project.name) contributors"
+            VALUE "FileDescription", "$(project.name)"
+            VALUE "FileVersion", "$(project->version.major).$(project->version.minor).$(project->version.patch).0"
+            VALUE "InternalName", "$(project.name)"
+            VALUE "LegalCopyright", "MPL v2"
+            VALUE "OriginalFilename", "$(project.name).dll"
+            VALUE "ProductName", "$(project.name)"
+            VALUE "ProductVersion", "$(project->version.major).$(project->version.minor).$(project->version.patch).0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+#endif    // English (United States) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
+.#
+.output "builds/msvc/properties/Common.props"
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  
+  <PropertyGroup>
+    <_PropertySheetDisplayName>Common Settings</_PropertySheetDisplayName>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+
+  <ImportGroup Label="PropertySheets">
+    <Import Project="\$(Platform).props" />
+  </ImportGroup>  
+
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PreprocessorDefinitions>UNICODE;_UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+  </ItemDefinitionGroup>
+
+</Project>\
+.#
+.output "builds/msvc/properties/DLL.props"
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    
+  <PropertyGroup>
+    <_PropertySheetDisplayName>Dynamic Library</_PropertySheetDisplayName>
+    <DefaultLinkage>dynamic</DefaultLinkage>
+    <TargetExt>.dll</TargetExt>
+  </PropertyGroup>
+  
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <PreprocessorDefinitions>_DLL;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+
+</Project>\
+.#
+.output "builds/msvc/properties/Debug.props"
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  
+  <ImportGroup Label="PropertySheets">
+    <Import Project="Common.props" />
+  </ImportGroup>
+  
+  <PropertyGroup>
+    <_PropertySheetDisplayName>Debug Settings</_PropertySheetDisplayName>
+    <DebugOrRelease>Debug</DebugOrRelease>
+  </PropertyGroup>
+  
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>    
+  </ItemDefinitionGroup>
+  
+</Project>\
+.#
+.output "builds/msvc/properties/DebugDEXE.props"
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup>
+    <_PropertySheetDisplayName>Console Debug Dynamic</_PropertySheetDisplayName>
+    <DefaultLinkage>dynamic</DefaultLinkage>
+  </PropertyGroup>
+
+  <ImportGroup Label="PropertySheets">
+    <Import Project="Debug.props" />
+    <Import Project="EXE.props" />
+  </ImportGroup>
+  
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <LinkIncremental>true</LinkIncremental>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  
+</Project>\
+.#
+.output "builds/msvc/properties/DebugDLL.props"
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup>
+    <_PropertySheetDisplayName>Dynamic Debug Library</_PropertySheetDisplayName>
+  </PropertyGroup>
+
+  <ImportGroup Label="PropertySheets">
+    <Import Project="Debug.props" />
+    <Import Project="DLL.props" />
+  </ImportGroup>
+
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <LinkIncremental>true</LinkIncremental>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  
+</Project>\
+.#
+.output "builds/msvc/properties/DebugLEXE.props"
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup>
+    <_PropertySheetDisplayName>Console Debug Link Time Code Generation</_PropertySheetDisplayName>
+  </PropertyGroup>
+
+  <ImportGroup Label="PropertySheets">
+    <Import Project="Debug.props" />
+    <Import Project="Link.props" />
+    <Import Project="EXE.props" />
+  </ImportGroup>
+
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
+  </ItemDefinitionGroup>
+
+</Project>\
+.#
+.output "builds/msvc/properties/DebugLIB.props"
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  
+  <PropertyGroup>
+    <_PropertySheetDisplayName>Static Debug Library</_PropertySheetDisplayName>
+  </PropertyGroup>
+  
+  <ImportGroup Label="PropertySheets">
+    <Import Project="Debug.props" />
+    <Import Project="LIB.props" />
+  </ImportGroup>
+  
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <DebugInformationFormat>OldStyle</DebugInformationFormat>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <LinkIncremental>true</LinkIncremental>
+    </ClCompile>
+  </ItemDefinitionGroup>
+
+</Project>\
+.#
+.output "builds/msvc/properties/DebugLTCG.props"
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  
+  <PropertyGroup>
+    <_PropertySheetDisplayName>Static Debug Link Time Code Generation Library</_PropertySheetDisplayName>
+  </PropertyGroup>
+  
+  <ImportGroup Label="PropertySheets">
+    <Import Project="Debug.props" />
+    <Import Project="LTCG.props" />
+  </ImportGroup>
+
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <DebugInformationFormat>OldStyle</DebugInformationFormat>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
+  </ItemDefinitionGroup>
+
+</Project>\
+.#
+.output "builds/msvc/properties/DebugSEXE.props"
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup>
+    <_PropertySheetDisplayName>Console Debug Static</_PropertySheetDisplayName>
+    <DefaultLinkage>static</DefaultLinkage>
+  </PropertyGroup>
+
+  <ImportGroup Label="PropertySheets">
+    <Import Project="Debug.props" />
+    <Import Project="EXE.props" />
+  </ImportGroup>
+
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <LinkIncremental>true</LinkIncremental>
+    </ClCompile>
+  </ItemDefinitionGroup>
+
+</Project>\
+.#
+.output "builds/msvc/properties/EXE.props"
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    
+  <PropertyGroup>
+    <_PropertySheetDisplayName>Console Application</_PropertySheetDisplayName>
+    <IsExe>true</IsExe>    
+  </PropertyGroup>
+
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <PreprocessorDefinitions>_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+</Project>\
+.#
+.output "builds/msvc/properties/LIB.props"
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  
+  <PropertyGroup>
+    <_PropertySheetDisplayName>Static Library</_PropertySheetDisplayName>
+    <DefaultLinkage>static</DefaultLinkage>
+    <TargetExt>.lib</TargetExt>
+  </PropertyGroup>
+  
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <PreprocessorDefinitions>_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+
+</Project>\
+.#
+.output "builds/msvc/properties/LTCG.props"
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup>
+    <_PropertySheetDisplayName>Link Time Code Generation Library</_PropertySheetDisplayName>
+  </PropertyGroup>
+  
+  <ImportGroup Label="PropertySheets">
+    <Import Project="LIB.props" />
+    <Import Project="Link.props" />
+  </ImportGroup>
+
+</Project>\
+.#
+.output "builds/msvc/properties/Link.props"
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+   
+  <PropertyGroup>
+    <_PropertySheetDisplayName>Link Time Code Generation Settings</_PropertySheetDisplayName>
+    <DefaultLinkage>ltcg</DefaultLinkage>
+  </PropertyGroup>
+
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+    </ClCompile>
+    <Link>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+    </Link>
+    <Lib>
+      <LinkTimeCodeGeneration>true</LinkTimeCodeGeneration>
+    </Lib>
+  </ItemDefinitionGroup>
+
+</Project>\
+.#
+.output "builds/msvc/properties/Messages.props"
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup>
+    <_PropertySheetDisplayName>Build Messages</_PropertySheetDisplayName>
+  </PropertyGroup>
+
+  <Target Name="ConfigInfo" BeforeTargets="PrepareForBuild">
+    <Message Text="ConfigurationType : \$(ConfigurationType)" Importance="high"/>
+    <Message Text="Configuration     : \$(Configuration)" Importance="high"/>
+    <Message Text="PlatformToolset   : \$(PlatformToolset)" Importance="high"/>
+    <Message Text="TargetPath        : \$(TargetPath)" Importance="high"/>
+  </Target>
+
+</Project>\
+.#
+.output "builds/msvc/properties/Output.props"
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+ 
+  <PropertyGroup>
+    <_PropertySheetDisplayName>Output Settings</_PropertySheetDisplayName>
+    <!-- BuildRoot, RepoRoot, SourceRoot, DebugOrRelease and DefaultLinkage are custom props and should therefore not be referenced from *.import.props or nuget target files. -->
+    <BuildRoot>\$(ProjectDir)..\\..\\</BuildRoot>
+    <RepoRoot>\$(ProjectDir)..\\..\\..\\..\\</RepoRoot>
+    <SourceRoot>\$(ProjectDir)..\\..\\..\\..\\..\\</SourceRoot>
+    <OutDir>\$(ProjectDir)..\\..\\..\\..\\bin\\\$(PlatformName)\\\$(DebugOrRelease)\\\$(PlatformToolset)\\\$(DefaultLinkage)\\</OutDir>
+    <IntDir>\$(ProjectDir)..\\..\\..\\..\\obj\\\$(TargetName)\\\$(PlatformName)\\\$(DebugOrRelease)\\\$(PlatformToolset)\\\$(DefaultLinkage)\\</IntDir>
+    <TargetDir>\$(OutDir)</TargetDir>
+    <TargetName>\$(TargetName)</TargetName>
+    <TargetPath>\$(TargetDir)\$(TargetName)\$(TargetExt)</TargetPath>
+  </PropertyGroup>
+  
+  <ItemDefinitionGroup>
+    <Link>
+      <ImportLibrary>\$(OutDir)\$(TargetName).lib</ImportLibrary>
+    </Link>
+    <BuildLog>
+      <Path>\$(OutDir)\$(TargetName).log</Path>
+    </BuildLog> 
+  </ItemDefinitionGroup>
+  
+  <ImportGroup Label="PropertySheets">
+    <Import Project="Messages.props" />
+  </ImportGroup>    
+  
+</Project>\
+.#
+.output "builds/msvc/properties/Release.props"
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <ImportGroup Label="PropertySheets">
+    <Import Project="Common.props" />
+  </ImportGroup>
+  
+  <PropertyGroup>
+    <_PropertySheetDisplayName>Release Settings</_PropertySheetDisplayName>
+    <DebugOrRelease>Release</DebugOrRelease>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalOptions>/Oy- %(AdditionalOptions)</AdditionalOptions>
+      <!--<DebugInformationFormat>ProgramDatabase</DebugInformationFormat>-->
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <MinimalRebuild>false</MinimalRebuild>
+      <Optimization>MaxSpeed</Optimization>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <!--<GenerateDebugInformation>true</GenerateDebugInformation>-->
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link> 
+  </ItemDefinitionGroup>
+
+  <ItemDefinitionGroup Condition="'\$(Processor)' == 'x86'">
+    <ClCompile>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+    </ClCompile>
+  </ItemDefinitionGroup>
+
+</Project>\
+.#
+.output "builds/msvc/properties/ReleaseDEXE.props"
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup>
+    <_PropertySheetDisplayName>Console Release Dynamic</_PropertySheetDisplayName>
+    <DefaultLinkage>dynamic</DefaultLinkage>
+  </PropertyGroup>
+
+  <ImportGroup Label="PropertySheets">
+    <Import Project="Release.props" />
+    <Import Project="EXE.props" />
+  </ImportGroup>
+
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+    </ClCompile>
+  </ItemDefinitionGroup>
+
+</Project>\
+.#
+.output "builds/msvc/properties/ReleaseDLL.props"
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  
+  <PropertyGroup>
+    <_PropertySheetDisplayName>Dynamic Release Library</_PropertySheetDisplayName>
+  </PropertyGroup>
+
+  <ImportGroup Label="PropertySheets">
+    <Import Project="Release.props" />
+    <Import Project="DLL.props" />
+  </ImportGroup>
+  
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+    </ClCompile>
+  </ItemDefinitionGroup>
+
+</Project>\
+.#
+.output "builds/msvc/properties/ReleaseLEXE.props"
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup>
+    <_PropertySheetDisplayName>Console Release Link Time Code Generation</_PropertySheetDisplayName>
+  </PropertyGroup>
+
+  <ImportGroup Label="PropertySheets">
+    <Import Project="Release.props" />
+    <Import Project="Link.props" />
+    <Import Project="EXE.props" />
+  </ImportGroup>
+
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+  </ItemDefinitionGroup>
+
+</Project>\
+.#
+.output "builds/msvc/properties/ReleaseLIB.props"
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup>
+    <_PropertySheetDisplayName>Static Release Library</_PropertySheetDisplayName>
+  </PropertyGroup>
+  
+  <ImportGroup Label="PropertySheets">
+    <Import Project="Release.props" />
+    <Import Project="LIB.props" />
+  </ImportGroup>
+
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+  </ItemDefinitionGroup>
+
+</Project>\
+.#
+.output "builds/msvc/properties/ReleaseLTCG.props"
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup>
+    <_PropertySheetDisplayName>Static Release Link Time Code Generation Library</_PropertySheetDisplayName>
+  </PropertyGroup>
+  
+  <ImportGroup Label="PropertySheets">
+    <Import Project="Release.props" />
+    <Import Project="LTCG.props" />
+  </ImportGroup>
+
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+  </ItemDefinitionGroup>
+
+</Project>\
+.#
+.output "builds/msvc/properties/ReleaseSEXE.props"
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup>
+    <_PropertySheetDisplayName>Console Release Static</_PropertySheetDisplayName>
+    <DefaultLinkage>static</DefaultLinkage>
+  </PropertyGroup>
+
+  <ImportGroup Label="PropertySheets">
+    <Import Project="Release.props" />
+    <Import Project="EXE.props" />
+  </ImportGroup>
+
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+  </ItemDefinitionGroup>
+
+</Project>\
+.#
+.output "builds/msvc/properties/Win32.props"
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  
+  <PropertyGroup>
+    <_PropertySheetDisplayName>x86 Settings</_PropertySheetDisplayName>
+  </PropertyGroup>
+  
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <Lib>
+      <AdditionalOptions>/MACHINE:X86 %(AdditionalOptions)</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+
+</Project>\
+.#
+.output "builds/msvc/properties/x64.props"
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  
+  <PropertyGroup>
+    <_PropertySheetDisplayName>x64 Settings</_PropertySheetDisplayName>
+  </PropertyGroup>
+    
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <!-- Note that Win64 defines may cause WIN32 to become defined when using windows headers, 
+      but _WIN32 implies Windows 32 bit or above. If the standard headers are not included 
+      these are sometimes required even for 64 bit builds and should never cause harm there.-->
+      <PreprocessorDefinitions>WIN32;_WIN32;WIN64;_WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+    <Lib>
+      <AdditionalOptions>/MACHINE:X64 %(AdditionalOptions)</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+
+</Project>\
+.#
+.for project.use
+.output "builds/msvc/properties/$(use.libname:c).import.props"
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup Label="Globals">
+    <_PropertySheetDisplayName>$(use.project:) Import Settings</_PropertySheetDisplayName>
+  </PropertyGroup>
+
+  <!-- User Interface -->
+
+  <ItemGroup Label="BuildOptionsExtension">
+    <PropertyPageSchema Include="\$(MSBuildThisFileDirectory)$(use.libname:c).import.xml" />
+  </ItemGroup>
+
+  <!-- Linkage -->
+
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>\$(ProjectDir)..\\..\\..\\..\\..\\$(use.reponame:c)\\$(string.replace (use.includedir, "/|\\") );%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'\$(Linkage-$(use.libname:c))' == 'static' Or '\$(Linkage-$(use.libname:c))' == 'ltcg'">$(USE.PROJECT)_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies Condition="'\$(Linkage-$(use.libname:c))' != ''">$(use.libname:c).lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories Condition="\$(Configuration.IndexOf('Debug')) != -1">\$(ProjectDir)..\\..\\..\\..\\..\\$(use.reponame:c)\\bin\\\$(PlatformName)\\Debug\\\$(PlatformToolset)\\\$(Linkage-$(use.libname:c))\\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories Condition="\$(Configuration.IndexOf('Release')) != -1">\$(ProjectDir)..\\..\\..\\..\\..\\$(use.reponame:c)\\bin\\\$(PlatformName)\\Release\\\$(PlatformToolset)\\\$(Linkage-$(use.libname:c))\\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+
+  <!-- Copy -->
+
+  <Target Name="Linkage-$(use.libname:c)-dynamic" AfterTargets="AfterBuild" Condition="'\$(Linkage-$(use.libname:c))' == 'dynamic'">
+    <Copy Condition="\$(Configuration.IndexOf('Debug')) != -1"
+          SourceFiles="\$(ProjectDir)..\\..\\..\\..\\..\\$(use.reponame:c)\\bin\\\$(PlatformName)\\Debug\\\$(PlatformToolset)\\dynamic\\$(use.libname).dll"
+          DestinationFiles="\$(TargetDir)$(use.libname).dll"
+          SkipUnchangedFiles="true" />
+    <Copy Condition="\$(Configuration.IndexOf('Debug')) != -1"
+          SourceFiles="\$(ProjectDir)..\\..\\..\\..\\..\\$(use.reponame:c)\\bin\\\$(PlatformName)\\Debug\\\$(PlatformToolset)\\dynamic\\$(use.libname).pdb"
+          DestinationFiles="\$(TargetDir)$(use.libname).pdb"
+          SkipUnchangedFiles="true" />
+    <Copy Condition="\$(Configuration.IndexOf('Release')) != -1"
+          SourceFiles="\$(ProjectDir)..\\..\\..\\..\\..\\$(use.reponame:c)\\bin\\\$(PlatformName)\\Release\\\$(PlatformToolset)\\dynamic\\$(use.libname).dll"
+          DestinationFiles="\$(TargetDir)$(use.libname).dll"
+          SkipUnchangedFiles="true" />
+  </Target>
+
+  <!-- Messages -->
+
+  <Target Name="$(use.libname:c)-info" BeforeTargets="AfterBuild" Condition="'\$(Linkage-$(use.libname:c))' == 'dynamic'">
+    <Message Text="Copying $(use.libname).dll -&gt; \$(TargetDir)$(use.libname).dll" Importance="high"/>
+    <Message Text="Copying $(use.libname).pdb -&gt; \$(TargetDir)$(use.libname).pdb" Importance="high" Condition="\$(Configuration.IndexOf('Debug')) != -1" />
+  </Target>
+
+</Project>\
+.#
+.output "builds/msvc/properties/$(use.libname:c).import.xml"
+<?xml version="1.0" encoding="utf-8"?>
+<ProjectSchemaDefinitions xmlns="clr-namespace:Microsoft.Build.Framework.XamlTypes;assembly=Microsoft.Build.Framework">
+  <Rule Name="$(use.libname:c)-linkage-uiextension" PageTemplate="tool" DisplayName="Local Dependencies" SwitchPrefix="/" Order="1">
+    <Rule.Categories>
+      <Category Name="$(use.project:c)" DisplayName="$(use.project:)" />
+    </Rule.Categories>
+    <Rule.DataSource>
+      <DataSource Persistence="ProjectFile" ItemType="" />
+    </Rule.DataSource>
+    <EnumProperty Name="Linkage-$(use.libname:c)" DisplayName="Linkage" Description="How $(use.project:) will be linked into the output of this project" Category="$(use.project:c)">
+      <EnumValue Name="" DisplayName="Not linked" />
+      <EnumValue Name="dynamic" DisplayName="Dynamic (DLL)" />
+      <EnumValue Name="static" DisplayName="Static (LIB)" />
+      <EnumValue Name="ltcg" DisplayName="Static using link time compile generation (LTCG)" />
+    </EnumProperty>
+  </Rule>
+</ProjectSchemaDefinitions>\
+.endfor
+.#
+.output "builds/msvc/properties/$(project.name:c).props"
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup Label="Globals">
+    <_PropertySheetDisplayName>$(project.name:) Common Settings</_PropertySheetDisplayName>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+  </PropertyGroup>
+
+  <!-- Configuration -->
+  
+  <ItemDefinitionGroup>
+    <PreBuildEvent>
+      <Command>copy \$(BuildRoot)platform.h \$(RepoRoot)include\\</Command>
+    </PreBuildEvent>
+    <ClCompile>
+      <AdditionalIncludeDirectories>\$(RepoRoot)include\\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <EnablePREfast>false</EnablePREfast>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;BASE_THREADSAFE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'\$(ConfigurationType)' == 'StaticLibrary'">$(PROJECT.LIBNAME)_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'\$(ConfigurationType)' == 'DynamicLibrary'">$(PROJECT.LIBNAME)_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>Rpcrt4.lib;Ws2_32.lib;Iphlpapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+
+  <!-- Dependencies -->
+
+  <ImportGroup Label="PropertySheets">
+.for project.use
+    <Import Project="\$(SolutionDir)\\..\\properties\\$(use.libname:c).import.props" />
+.endfor
+  </ImportGroup>
+
+  <PropertyGroup Condition="'\$(DefaultLinkage)' == 'dynamic'">
+.for project.use
+    <Linkage-$(use.libname:c)>dynamic</Linkage-$(use.libname:c)>
+.endfor
+  </PropertyGroup>
+  <PropertyGroup Condition="'\$(DefaultLinkage)' == 'ltcg'">
+.for project.use
+    <Linkage-$(use.libname:c)>ltcg</Linkage-$(use.libname:c)>
+.endfor
+  </PropertyGroup>
+  <PropertyGroup Condition="'\$(DefaultLinkage)' == 'static'">
+.for project.use
+    <Linkage-$(use.libname:c)>static</Linkage-$(use.libname:c)>
+.endfor
+  </PropertyGroup> 
+
+  <!-- Messages -->
+
+  <Target Name="CustomInfo" BeforeTargets="PrepareForBuild">
+    <Message Text="Will copy \$(BuildRoot)platform.h -&gt; \$(RepoRoot)include\\platform.h" Importance="high"/>
+  </Target>
+
+  <Target Name="LinkageInfo" BeforeTargets="PrepareForBuild">
+.for project.use
+    <Message Text="Linkage-$(use.libname:c)    : \$(Linkage-$(use.libname:c))" Importance="high"/>
+.endfor
+  </Target>
+
+</Project>\
+.#
+.output "builds/msvc/properties/$(project.prefix:c)_selftest.props"
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup Label="Globals">
+    <_PropertySheetDisplayName>$(project.name:) Self Test Common Settings</_PropertySheetDisplayName>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+  </PropertyGroup>
+
+  <!-- Configuration -->
+  
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <EnablePREfast>false</EnablePREfast>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>Iphlpapi.lib;Rpcrt4.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+
+  <!-- Dependencies -->
+
+  <ImportGroup Label="PropertySheets">
+    <Import Project="\$(SolutionDir)\\..\\properties\\$(project.name:c).import.props" />
+.for project.use
+    <Import Project="\$(SolutionDir)\\..\\properties\\$(use.libname:c).import.props" />
+.endfor
+  </ImportGroup>
+ 
+  <PropertyGroup Condition="'\$(DefaultLinkage)' == 'dynamic'">
+    <Linkage-$(project.name:c)>dynamic</Linkage-$(project.name:c)>
+.for project.use
+    <Linkage-$(use.libname:c)>dynamic</Linkage-$(use.libname:c)>
+.endfor
+  </PropertyGroup>
+  <PropertyGroup Condition="'\$(DefaultLinkage)' == 'ltcg'">
+    <Linkage-$(project.name:c)>ltcg</Linkage-$(project.name:c)>
+.for project.use
+    <Linkage-$(use.libname:c)>ltcg</Linkage-$(use.libname:c)>
+.endfor
+  </PropertyGroup>
+  <PropertyGroup Condition="'\$(DefaultLinkage)' == 'static'">
+    <Linkage-$(project.name:c)>static</Linkage-$(project.name:c)>
+.for project.use
+    <Linkage-$(use.libname:c)>static</Linkage-$(use.libname:c)>
+.endfor
+  </PropertyGroup>   
+
+  <!-- Messages -->
+
+  <Target Name="LinkageInfo" BeforeTargets="PrepareForBuild">
+    <Message Text="Linkage-$(project.name:c)  : \$(Linkage-$(project.name:c))" Importance="high"/>
+.for project.use
+    <Message Text="Linkage-$(use.libname:c)   : \$(Linkage-$(use.libname:c))" Importance="high"/>
+.endfor
+  </Target>
+
+</Project>\
+.#
+.output "builds/msvc/properties/$(project.prefix:c).import.props"
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup Label="Globals">
+    <_PropertySheetDisplayName>$(project.name:) Import Settings</_PropertySheetDisplayName>
+  </PropertyGroup>
+  
+  <!-- User Interface -->
+
+  <ItemGroup Label="BuildOptionsExtension">
+    <PropertyPageSchema Include="\$(MSBuildThisFileDirectory)$(project.name:c).import.xml" />
+  </ItemGroup>
+
+  <!-- Linkage -->
+  
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>\$(ProjectDir)..\\..\\..\\..\\..\\$(project.name:c)\\include\\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'\$(Linkage-$(project.name:c))' == 'static' Or '\$(Linkage-$(project.name:c))' == 'ltcg'">$(PROJECT.LIBNAME)_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies Condition="'\$(Linkage-$(project.name:c))' != ''">$(project.name:c).lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories Condition="\$(Configuration.IndexOf('Debug')) != -1">\$(ProjectDir)..\\..\\..\\..\\..\\$(project.name:c)\\bin\\\$(PlatformName)\\Debug\\\$(PlatformToolset)\\\$(Linkage-$(project.name:c))\\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories Condition="\$(Configuration.IndexOf('Release')) != -1">\$(ProjectDir)..\\..\\..\\..\\..\\$(project.name:c)\\bin\\\$(PlatformName)\\Release\\\$(PlatformToolset)\\\$(Linkage-$(project.name:c))\\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>  
+
+  <!-- Copy -->
+
+  <Target Name="Linkage-$(project.name:c)-dynamic" AfterTargets="AfterBuild" Condition="'\$(Linkage-$(project.name:c))' == 'dynamic'">
+    <Copy Condition="\$(Configuration.IndexOf('Debug')) != -1"
+          SourceFiles="\$(ProjectDir)..\\..\\..\\..\\..\\$(project.name:c)\\bin\\\$(PlatformName)\\Debug\\\$(PlatformToolset)\\dynamic\\$(project.name:c).dll"
+          DestinationFiles="\$(TargetDir)$(project.name:c).dll"
+          SkipUnchangedFiles="true" />
+    <Copy Condition="\$(Configuration.IndexOf('Debug')) != -1"
+          SourceFiles="\$(ProjectDir)..\\..\\..\\..\\..\\$(project.name:c)\\bin\\\$(PlatformName)\\Debug\\\$(PlatformToolset)\\dynamic\\$(project.name:c).pdb"
+          DestinationFiles="\$(TargetDir)$(project.name:c).pdb"
+          SkipUnchangedFiles="true" />
+    <Copy Condition="\$(Configuration.IndexOf('Release')) != -1"
+          SourceFiles="\$(ProjectDir)..\\..\\..\\..\\..\\$(project.name:c)\\bin\\\$(PlatformName)\\Release\\\$(PlatformToolset)\\dynamic\\$(project.name:c).dll"
+          DestinationFiles="\$(TargetDir)$(project.name:c).dll"
+          SkipUnchangedFiles="true" />
+  </Target>
+
+  <!-- Messages -->
+
+  <Target Name="$(project.name:c)-info" BeforeTargets="AfterBuild" Condition="'\$(Linkage-$(project.name:c))' == 'dynamic'">
+    <Message Text="Copying $(project.name:c).dll -&gt; \$(TargetDir)$(project.name:c).dll" Importance="high"/>
+    <Message Text="Copying $(project.name:c).pdb -&gt; \$(TargetDir)$(project.name:c).pdb" Importance="high" Condition="\$(Configuration.IndexOf('Debug')) != -1" />
+  </Target>
+
+</Project>
+.#
+.output "builds/msvc/properties/$(project.prefix:c).import.xml"
+<?xml version="1.0" encoding="utf-8"?>
+<ProjectSchemaDefinitions xmlns="clr-namespace:Microsoft.Build.Framework.XamlTypes;assembly=Microsoft.Build.Framework">
+  <Rule Name="$(project.name:c)-linkage-uiextension" PageTemplate="tool" DisplayName="Local Dependencies" SwitchPrefix="/" Order="1">
+    <Rule.Categories>
+      <Category Name="$(project.name:c)" DisplayName="$(project.name:c)" />
+    </Rule.Categories>
+    <Rule.DataSource>
+      <DataSource Persistence="ProjectFile" ItemType="" />
+    </Rule.DataSource>
+    <EnumProperty Name="Linkage-$(project.name:c)" DisplayName="Linkage" Description="How czmq will be linked into the output of this project" Category="$(project.name:c)">
+      <EnumValue Name="" DisplayName="Not linked" />
+      <EnumValue Name="dynamic" DisplayName="Dynamic (DLL)" />
+      <EnumValue Name="static" DisplayName="Static (LIB)" />
+      <EnumValue Name="ltcg" DisplayName="Static using link time compile generation (LTCG)" />
+    </EnumProperty>
+  </Rule>
+</ProjectSchemaDefinitions>
